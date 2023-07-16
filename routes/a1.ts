@@ -28,6 +28,7 @@ import {
 } from "../methods/user";
 import { getDashBoardData } from "../methods/dashboard";
 import { userLogin } from "../methods/login";
+import { getAllCategory, getAllUnits } from "../methods/settings";
 
 export const a1: any = express.Router();
 a1.post("/login",userLogin );
@@ -56,3 +57,6 @@ a1.get("/staffs", getAllUsers);
 a1.post("/staff", addSingleUser);
 a1.put("/staff", editSingleUser);
 a1.delete("/staff/:_id", deleteSingleUser);
+// ////////////////////////////////////////////////////////////////
+a1.get("/units", getAllUnits);
+a1.get("/categories", getAllCategory);

@@ -27,7 +27,12 @@ export const getProductsBySearch = async (req: any, res: any) => {
 export const addSingleProduct = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
   var product = new Product();
-  product = { ...product, ...req.body, createdBy: authkey[1] };
+  product = {
+    ...product,
+    ...req.body,
+    createdBy: authkey[1],
+    createdAt: Date(),
+  };
   await dbGetProduct(authkey[0], { name: product.name })
     .then(async (dbRes: any) => {
       if (dbRes === null)
@@ -42,15 +47,27 @@ export const addSingleProduct = async (req: any, res: any) => {
 export const editSingleProduct = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
   var product = new Product();
-  product = { ...product, ...req.body, createdBy: authkey[1] };
-  await dbUpdateProduct(authkey[0], product)
-    .then(() => res.send({ msg: "Succes" }))
-    .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
+  product = {
+    ...product,
+    ...req.body,
+    updatedBy: authkey[1],
+    updatedAt: Date(),
+  };
+  await dbGetProduct(authkey[0], { name: product.name })
+    .then(async (dbRes: any) => {
+      if (dbRes === null || dbRes._id.toString() === req.body._id)
+        await dbUpdateProduct(authkey[0], product)
+          .then(() => res.send({ msg: "Succes" }))
+          .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
+      else res.status(502).send({ msg: "Name already exist" });
+    })
+    .catch((e) => res.status(502).send({ msg: "Not Able to Insert" }));
 };
 
 export const deleteSingleProduct = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
   req.params.deletedBy = authkey[1];
+  req.params.deletedAt = Date();
   req.params.deleted = true;
   await dbUpdateProduct(authkey[0], req.params)
     .then(() => res.send({ msg: "Succes" }))

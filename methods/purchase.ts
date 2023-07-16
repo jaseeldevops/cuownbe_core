@@ -58,8 +58,14 @@ export const addSinglePurchase = async (req: any, res: any) => {
 
 export const editSinglePurchase = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
-  req.body.updatedBy = authkey[1];
-  await dbUpdatePurchase(authkey[0], req.body)
+  var purchase = new Purchase();
+  purchase = {
+    ...purchase,
+    ...req.body,
+    updatedBy: authkey[1],
+    updatedAt: Date(),
+  };
+  await dbUpdatePurchase(authkey[0], purchase)
     .then(() => res.send({ msg: "Succes" }))
     .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
 };
@@ -67,6 +73,7 @@ export const editSinglePurchase = async (req: any, res: any) => {
 export const deleteSinglePurchase = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
   req.params.deletedBy = authkey[1];
+  req.params.deletedAt = Date();
   req.params.deleted = true;
   await dbUpdatePurchase(authkey[0], req.params)
     .then(() => res.send({ msg: "Succes" }))

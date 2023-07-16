@@ -11,12 +11,18 @@ export const connectDataBase = async () => {
   console.log("Atles Connected");
 };
 
+// ///////////////////////////////////////////////////////
 export const dbGetUser = async (data: any) => {
   const database = client.db(data.org);
   const collection = database.collection("users");
   return collection.findOne({ user: data.user, password: data.password });
 };
 // ///////////////////////////////////////////////////////
+export const dbGetCollectionCount = async (org: any, item: any, query: any) => {
+  const database = client.db(org);
+  const collection = database.collection(item);
+  return collection.count({ deleted: { $ne: true }, ...query });
+};
 // ///////////////////////////////////////////////////////
 export const dbGetProducts = async (org: any) => {
   const database = client.db(org);
@@ -75,10 +81,10 @@ export const dbUpdatePurchase = async (org: any, data: any) => {
 };
 // ///////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////
-export const dbGetSales = async (org: any) => {
+export const dbGetSales = async (org: any, query?: any) => {
   const database = client.db(org);
   const collection = database.collection("sales");
-  return collection.find({ deleted: { $ne: true } }).toArray();
+  return collection.find({ deleted: { $ne: true } }, query).toArray();
 };
 export const dbGetSale = async (org: any, _id: any) => {
   const database = client.db(org);
@@ -97,7 +103,6 @@ export const dbUpdateSale = async (org: any, data: any) => {
   delete data._id;
   return collection.updateOne({ _id }, { $set: data });
 };
-// ///////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////
 export const dbGetStaffs = async (org: any) => {
   const database = client.db(org);
@@ -120,4 +125,15 @@ export const dbUpdateStaff = async (org: any, data: any) => {
   const _id = new ObjectId(data._id);
   delete data._id;
   return collection.updateOne({ _id }, { $set: data });
+};
+// ///////////////////////////////////////////////////////
+export const dbGetUnits = async (org: any) => {
+  const database = client.db(org);
+  const collection = database.collection("units");
+  return collection.find({ deleted: { $ne: true } }).toArray();
+};
+export const dbGetCategories = async (org: any) => {
+  const database = client.db(org);
+  const collection = database.collection("categories");
+  return collection.find({ deleted: { $ne: true } }).toArray();
 };

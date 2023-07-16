@@ -1,6 +1,5 @@
 export class Product {
   category: string = "";
-  createdBy: string = "";
   desc: string = "";
   name: string = "";
   mrp: number = 0;
@@ -8,6 +7,13 @@ export class Product {
   sellingPrice: number = 0;
   unit: string = "";
   stock: number = 0;
+  createdBy: string = "";
+  createdAt: string = "";
+  updatedBy: string = "";
+  updatedAt: string = "";
+  deletedBy: string = "";
+  deletedAt: string = "";
+  deleted: boolean = false;
 }
 
 export class Purchase {
@@ -20,6 +26,9 @@ export class Purchase {
   createdAt: string = "";
   updatedBy: string = "";
   updatedAt: string = "";
+  deletedBy: string = "";
+  deletedAt: string = "";
+  deleted: boolean = false;
 }
 
 export class PurchaseEach {
@@ -38,6 +47,9 @@ export class Sale {
   createdAt: string = "";
   updatedBy: string = "";
   updatedAt: string = "";
+  deletedBy: string = "";
+  deletedAt: string = "";
+  deleted: boolean = false;
 }
 
 export class SaleEach {
@@ -63,4 +75,7 @@ export class User {
   createdAt: string = "";
   updatedBy: string = "";
   updatedAt: string = "";
+  deletedBy: string = "";
+  deletedAt: string = "";
+  deleted: boolean = false;
 }

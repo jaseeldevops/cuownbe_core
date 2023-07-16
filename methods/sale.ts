@@ -55,7 +55,13 @@ export const addSingleSale = async (req: any, res: any) => {
 };
 export const editSingleSale = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
-  req.body.updatedBy = authkey[1];
+  var sale = new Sale();
+  sale = {
+    ...sale,
+    ...req.body,
+    updatedBy: authkey[1],
+    updatedAt: Date(),
+  };
   await dbUpdateSale(authkey[0], req.body)
     .then(() => res.send({ msg: "Succes" }))
     .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
@@ -63,6 +69,7 @@ export const editSingleSale = async (req: any, res: any) => {
 export const deleteSingleSale = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
   req.params.deletedBy = authkey[1];
+  req.params.deletedAt = Date();
   req.params.deleted = true;
   await dbUpdateSale(authkey[0], req.params)
     .then(() => res.send({ msg: "Succes" }))
