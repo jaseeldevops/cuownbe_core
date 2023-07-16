@@ -43,16 +43,14 @@ export const addSinglePurchase = async (req: any, res: any) => {
     .then(() => {
       res.send({ msg: "Succes" });
       for (let i = 0; i < purchase.list.length; i++) {
-        dbGetProduct(authkey[0], {}, purchase.list[i].product)
-          .then((dbRes) => {
-            const body = {
-              _id: purchase.list[i].product,
-              stock: dbRes.stock + Number(purchase.list[i].qty),
-              purchasePrice: Number(purchase.list[i].price) * 100,
-            };
-            dbUpdateProduct(authkey[0], body);
-          })
-          .catch((e) => {});
+        dbGetProduct(authkey[0], {}, purchase.list[i].product).then((dbRes) => {
+          const body = {
+            _id: purchase.list[i].product,
+            stock: dbRes.stock + Number(purchase.list[i].qty),
+            purchasePrice: Number(purchase.list[i].price) * 100,
+          };
+          dbUpdateProduct(authkey[0], body);
+        });
       }
     })
     .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));

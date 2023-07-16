@@ -3,8 +3,10 @@ import {
   dbGetSale,
   dbGetSales,
   dbPostSale,
+  dbUpdateProduct,
   dbUpdateSale,
 } from "../modules/database";
+import { Sale } from "../modules/product";
 
 export const getAllSales = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
@@ -28,9 +30,27 @@ export const getSingleSale = async (req: any, res: any) => {
 };
 export const addSingleSale = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
-  req.body.createdBy = authkey[1];
-  await dbPostSale(authkey[0], req.body)
-    .then(() => res.send({ msg: "Succes" }))
+  var sale = new Sale();
+  sale = {
+    ...sale,
+    ...req.body,
+    createdBy: authkey[1],
+    createdAt: Date(),
+  };
+  await dbPostSale(authkey[0], sale)
+    .then(() => {
+      res.send({ msg: "Succes" });
+      for (let i = 0; i < sale.list.length; i++) {
+        dbGetProduct(authkey[0], {}, sale.list[i].product).then((dbRes) => {
+          const body = {
+            _id: sale.list[i].product,
+            stock: dbRes.stock - Number(sale.list[i].qty),
+            sallingPrice: Number(sale.list[i].price) * 100,
+          };
+          dbUpdateProduct(authkey[0], body);
+        });
+      }
+    })
     .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
 };
 export const editSingleSale = async (req: any, res: any) => {
