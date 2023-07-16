@@ -10,7 +10,6 @@ import { Purchase } from "../modules/product";
 
 export const getAllPurchases = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
-  req.body.creater = authkey[1];
   await dbGetPurchases(authkey[0])
     .then((dbRes) => res.send(dbRes))
     .catch((e) => res.status(502).send({ msg: "Unable To feach Data" }));
@@ -18,7 +17,6 @@ export const getAllPurchases = async (req: any, res: any) => {
 
 export const getSinglePurchase = async (req: any, res: any) => {
   const authkey = req.headers.authkey.split(" ");
-  req.body.creater = authkey[1];
   await dbGetPurchase(authkey[0], req.params._id)
     .then(async (dbRes) => {
       for (let i = 0; i < dbRes?.list?.length; i++)
@@ -42,16 +40,7 @@ export const addSinglePurchase = async (req: any, res: any) => {
   await dbPostPurchase(authkey[0], purchase)
     .then(() => {
       res.send({ msg: "Succes" });
-      for (let i = 0; i < purchase.list.length; i++) {
-        dbGetProduct(authkey[0], {}, purchase.list[i].product).then((dbRes) => {
-          const body = {
-            _id: purchase.list[i].product,
-            stock: dbRes.stock + Number(purchase.list[i].qty),
-            purchasePrice: Number(purchase.list[i].price) * 100,
-          };
-          dbUpdateProduct(authkey[0], body);
-        });
-      }
+      addPurchaseToStock(authkey[0], purchase.list);
     })
     .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
 };
@@ -65,8 +54,17 @@ export const editSinglePurchase = async (req: any, res: any) => {
     updatedBy: authkey[1],
     updatedAt: Date(),
   };
-  await dbUpdatePurchase(authkey[0], purchase)
-    .then(() => res.send({ msg: "Succes" }))
+  await dbGetPurchase(authkey[0], req.body?._id)
+    .then(async (dbRes) => {
+      for (let i = 0; i < dbRes.list.length; i++)
+        dbRes.list[i].qty = -Number(dbRes.list[i].qty);
+      await dbUpdatePurchase(authkey[0], purchase)
+        .then(() => {
+          res.send({ msg: "Succes" });
+          addPurchaseToStock(authkey[0], purchase.list.concat(dbRes.list));
+        })
+        .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
+    })
     .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
 };
 
@@ -75,7 +73,33 @@ export const deleteSinglePurchase = async (req: any, res: any) => {
   req.params.deletedBy = authkey[1];
   req.params.deletedAt = Date();
   req.params.deleted = true;
-  await dbUpdatePurchase(authkey[0], req.params)
-    .then(() => res.send({ msg: "Succes" }))
-    .catch(() => res.status(502).send({ msg: "Not Able to Insert" }));
+
+  await dbGetPurchase(authkey[0], req.params?._id)
+    .then(async (dbRes) => {
+      for (let i = 0; i < dbRes.list.length; i++)
+        dbRes.list[i].qty = -Number(dbRes.list[i].qty);
+      await dbUpdatePurchase(authkey[0], req.params)
+        .then(() => {
+          res.send({ msg: "Succes" });
+          addPurchaseToStock(authkey[0], dbRes.list);
+        })
+        .catch(() => res.status(502).send({ msg: "Not Able to Delete" }));
+    })
+    .catch(() => res.status(502).send({ msg: "Not Able to Delete" }));
+};
+
+// //////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////
+const addPurchaseToStock = async (authkey: any, list: any) => {  
+  for (let i = 0; i < list.length; i++) {
+    await dbGetProduct(authkey, {}, list[i].product).then(async (dbRes) => {
+      const body = {
+        _id: list[i].product,
+        stock: Number(dbRes.stock) + Number(list[i].qty),
+      };
+      await dbUpdateProduct(authkey, body);
+    });
+  }
 };
