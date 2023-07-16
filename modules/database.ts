@@ -1,27 +1,29 @@
+import { Product } from "./product";
+
 const { MongoClient, ObjectId } = require("mongodb");
 
 const uri =
   "mongodb+srv://jaseel1234:jaseel1234@cluster0.ghbxwm2.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 
-async function connectDataBase() {
+export const connectDataBase = async () => {
   await client.connect();
   console.log("Atles Connected");
-}
+};
 
-const dbGetUser = async (data) => {
+export const dbGetUser = async (data: any) => {
   const database = client.db(data.org);
   const collection = database.collection("users");
   return collection.findOne({ user: data.user, password: data.password });
 };
 // ///////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////
-const dbGetProdects = async (org) => {
+export const dbGetProducts = async (org: any) => {
   const database = client.db(org);
   const collection = database.collection("products");
   return collection.find({ deleted: { $ne: true } }).toArray();
 };
-const dbSearchProdects = async (org, search) => {
+export const dbSearchProducts = async (org: any, search: any) => {
   const database = client.db(org);
   const collection = database.collection("products");
   let regex = new RegExp(search, "i");
@@ -29,18 +31,18 @@ const dbSearchProdects = async (org, search) => {
     .find({ deleted: { $ne: true }, name: { $regex: regex } })
     .toArray();
 };
-const dbGetProdect = async (org, data, _id) => {
+export const dbGetProduct = async (org: any, data: any, _id?: any) => {
   const database = client.db(org);
   const collection = database.collection("products");
   if (_id) return collection.findOne({ _id: new ObjectId(_id) });
   return collection.findOne(data);
 };
-const dbPostProdect = async (org, data) => {
+export const dbPostProduct = async (org: any, data: Product) => {
   const database = client.db(org);
   const collection = database.collection("products");
   return collection.insertOne(data);
 };
-const dbUpdateProdect = async (org, data) => {
+export const dbUpdateProduct = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("products");
   const _id = new ObjectId(data._id);
@@ -49,22 +51,22 @@ const dbUpdateProdect = async (org, data) => {
 };
 // ///////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////
-const dbGetPurchases = async (org) => {
+export const dbGetPurchases = async (org: any) => {
   const database = client.db(org);
   const collection = database.collection("purchases");
   return collection.find({ deleted: { $ne: true } }).toArray();
 };
-const dbGetPurchase = async (org, _id) => {
+export const dbGetPurchase = async (org: any, _id: any) => {
   const database = client.db(org);
   const collection = database.collection("purchases");
   return collection.findOne({ _id: new ObjectId(_id) });
 };
-const dbPostPurchase = async (org, data) => {
+export const dbPostPurchase = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("purchases");
   return collection.insertOne(data);
 };
-const dbUpdatePurchase = async (org, data) => {
+export const dbUpdatePurchase = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("purchases");
   const _id = new ObjectId(data._id);
@@ -73,22 +75,22 @@ const dbUpdatePurchase = async (org, data) => {
 };
 // ///////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////
-const dbGetSales = async (org) => {
+export const dbGetSales = async (org: any) => {
   const database = client.db(org);
   const collection = database.collection("sales");
   return collection.find({ deleted: { $ne: true } }).toArray();
 };
-const dbGetSale = async (org, _id) => {
+export const dbGetSale = async (org: any, _id: any) => {
   const database = client.db(org);
   const collection = database.collection("sales");
   return collection.findOne({ _id: new ObjectId(_id) });
 };
-const dbPostSale = async (org, data) => {
+export const dbPostSale = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("sales");
   return collection.insertOne(data);
 };
-const dbUpdateSale = async (org, data) => {
+export const dbUpdateSale = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("sales");
   const _id = new ObjectId(data._id);
@@ -97,49 +99,25 @@ const dbUpdateSale = async (org, data) => {
 };
 // ///////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////
-const dbGetStaffs = async (org) => {
+export const dbGetStaffs = async (org: any) => {
   const database = client.db(org);
   const collection = database.collection("users");
   return collection.find({ deleted: { $ne: true } }).toArray();
 };
-const dbGetStaff = async (org, data) => {
+export const dbGetStaff = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("users");
   return collection.findOne(data);
 };
-const dbPostStaff = async (org, data) => {
+export const dbPostStaff = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("users");
   return collection.insertOne(data);
 };
-const dbUpdateStaff = async (org, data) => {
+export const dbUpdateStaff = async (org: any, data: any) => {
   const database = client.db(org);
   const collection = database.collection("users");
   const _id = new ObjectId(data._id);
   delete data._id;
   return collection.updateOne({ _id }, { $set: data });
-};
-// ///////////////////////////////////////////////////////
-// ///////////////////////////////////////////////////////
-
-module.exports = {
-  connectDataBase,
-  dbGetUser,
-  dbGetProdects,
-  dbSearchProdects,
-  dbGetProdect,
-  dbPostProdect,
-  dbUpdateProdect,
-  dbGetPurchases,
-  dbGetPurchase,
-  dbPostPurchase,
-  dbUpdatePurchase,
-  dbGetSales,
-  dbGetSale,
-  dbPostSale,
-  dbUpdateSale,
-  dbGetStaffs,
-  dbGetStaff,
-  dbPostStaff,
-  dbUpdateStaff,
 };
