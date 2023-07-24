@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-const port = 9000;
+const port = 80;
 
 import { a1 } from "./routes/a1";
 import { connectDataBase } from "./modules/database";
